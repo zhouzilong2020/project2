@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %} login {% endblock %}
+
+{% block head %}
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', ()=> {
+
+  })
+</script>
+{% endblock %}
+
+{% block body %}
+<form class="login_register form-horizongal" action="index.html" method="post">
+  <div class="form-group">
+    <label for="user_name">User's name</label>
+    <input type="text" class="form-control" id="user_name" placeholder="Please type your user's name here" required>
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password" placeholder="Password" required>
+  </div>
+  <div class="form-group text-center">
+    <button type="submit" class='btn byn-default' >Submit</button>
+  </div>
+</form>
+
+{% endblock %}
