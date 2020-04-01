@@ -1,0 +1,30 @@
+{% extends "login_register_layout.html" %}
+
+{% block nav %}
+  <li class="active"><a href={{ url_for('login') }}>Login</a></li>
+  <li><a href={{ url_for('register') }}>Register</a></li>
+{% endblock %}
+
+{% block title %}
+    login
+{% endblock %}
+
+{% block heading %}
+<h1 align = "center">Login now!</h1>
+<blockquote>
+  FEATURING THE FASTEST AND MOST RELIABLE
+  REAL-TIME ENGINE
+    <footer><cite title="Source Title">Zilong Zhou</cite></footer>
+</<blockquote >
+{% endblock %}
+
+{% block checkbox %}
+<div class="text-center">
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" name="checkbox" id="remember_me" value = 'True'> Remember me
+    </label>
+  </div>
+
+</div>
+{% endblock %}

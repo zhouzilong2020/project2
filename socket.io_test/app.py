@@ -1,36 +1,67 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
-from flask_login import current_user
+from flask import Flask
+from flask import request
+from flask import session
+from flask_session import Session
+import os
+from flask import render_template
+from flask_socketio import SocketIO
+import json
+# from module.quotations_module import Quotation
 
+
+port = 8001
+secret_key = os.urandom(24)  # 生成密钥，为session服务。
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+app.config['SECRET_KEY'] = secret_key  # 配置会话密钥
+# app.config['SESSION_TYPE'] = "redis"  # session类型为redis
+app.config['SESSION_PERMANENT'] = True  # 如果设置为True，则关闭浏览器session就失效
+app.config.from_object(__name__)
+Session(app)
+socket_io = SocketIO(app)
 
 
-# 可以直接通过这个启动app 也包括flask的一套启动
-# 可以使用系统中除了Werkzeug之外的东西
-# socketio.run(app)
+@app.route("/listen", methods=['post', 'get'])
+def listen_func():
+    """"监听发送来的消息,并使用socketio向所有客户端发送消息"""
+    mes = {"message": "unknown error"}
+    data = request.args['data'] if request.args.get('data') else request.form.get('data')
+    if data is not None:
+        socket_io.emit(data=data, event="mes")  // js客户端on绑定的就是这个event的事件
+        mes['message'] = "success"
+    else:
+        pass
+    return json.dumps(mes)
 
-# socketio.on_event('my event', my_function_handler, namespace='/test')
-@socketio.on('message', namespace='/test')
-def handle_message(message):
-    print('received message:' + message)
-    # send使用未命名的事件
-    send(message)
-    # emit使用已经命名了的事件
-    emit(message, broadcast=True)
-    return 'success'
 
-@socketio.on('join')
-def on_join(data):
-    username = data['username']
-    room = data['room']
-    join_room(room)
-    send(username+ ' has entered the room.', room = room)
-@socketio.on('leave')
-def on_leave(data):
-    username = data['username']
-    room = data['room']
-    leave_room(room)
-    send(username+ ' has left the room.', room = room)
-    
+@socket_io.on("login")
+def quotations_func(mes):
+    """客户端连接"""
+    print(mes)
+    sid = request.sid  # io客户端的sid, socketio用此唯一标识客户端.
+    can = False
+    host = request.host
+    host_list = ['127.0.0.1']
+    """
+    根据页面的访问地址决定是否允许连接, 你可以自己实现自己对访问的控制逻辑.
+    最后决定是允许连接还是使用socket_io.server.disconnect(sid)断开链接.
+    """
+    if host in host_list:
+        can = True
+    elif host.startswith("192.168") or host.startswith("local"):
+        can = True
+    else:
+        pass
+    if can:
+        socket_io.emit(event="login", data=json.dumps({"message": "connect refuse!"}))
+        socket_io.server.disconnect(sid)
+    else:
+        socket_io.emit(event="login", data=json.dumps({"message": "connect success!"}))
+
+
+@app.route("/test")
+def test_func():
+    """测试页面"""
+    return render_template("test.html")
+
+
+socket_io.run(app=app, debug=True)
