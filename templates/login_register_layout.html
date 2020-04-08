@@ -19,13 +19,14 @@
     <label for="user_id">User's Name</label>
     <input type="text" class="form-control" name="user_id" id="user_id" placeholder="User's Name" required>
   </div>
+  {% block form %}
+  {% endblock %}
   <div class="form-group">
     <label for="password">Password</label>
     <input type="password" class="form-control" name="password" id ="password" placeholder="Password" required>
   </div>
 
-    {% block checkbox %}
-    {% endblock %}
+
 
     <div class="text-center">
       <button type="submit" class="btn btn-default"">SUBMIT</button>

@@ -18,13 +18,9 @@
 
 
 
-  {% block checkbox %}
-<div class="text-center">
-  <div class="checkbox">
-    <label>
-      <input type="checkbox" name="checkbox" id="checkbox" required> I authorize this website to post all my reviews.
-    </label>
-  </div>
-
+{% block form %}
+<div class="form-group">
+  <label for="displayname">Display name</label>
+  <input type="text" class="form-control" name="displayname" id="displayname" placeholder="Display name" required>
 </div>
-  {% endblock %}
+{% endblock %}

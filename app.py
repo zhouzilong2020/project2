@@ -36,17 +36,21 @@ def login():
         remember_me = request.form.get('remember_me')
         user.login()
         if user.isAuthorized():
-            if remember_me == True:
-                make_response.set_cookie(f"{user.user_id}", f"{user.password}", max_age=3600)
-            return redirect(url_for('homepage', user_id = user.user_id))
-
-
-
+            return redirect(url_for('homepage', diaplayname = user.diaplayname))
     return render_template('login.html')
 
 
 @app.route('/register/', methods=['POST', 'GET'])
 def register():
+    if request.method == 'POST':
+        data = {
+            'user_id' : request.form.get('user_id'),
+            'password': request.form.get('password'),
+            'displayname':request.form.get('displayname')
+        }
+        newUser = User(data[user_id], data[password], data[displayname])
+        if newUser.addUser():
+            return redirect(url_for('homepage', diaplayname = user.diaplayname))
     return render_template('register.html')
 
 @app.route('/test/')

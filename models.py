@@ -12,12 +12,17 @@ class User(db.Model):
     #hash value of password
     password_hash = db.Column(db.String, nullable = False)
     password = None
+    displayname = db.Column(db.String, nullable = False)
+
+    def setDisplayName(self, name):
+        self.displayname = name
 
     #password is transfered into hash value
-    def __init__(self, user_id, password):
+    def __init__(self, user_id, password, displayname):
         #赋值user_id，user_password
         self.user_id = str(user_id)
         self.password = str(password)
+        self.displayname = str(displayname)
         self.validity = 0
 
     def isAuthorized(self):
