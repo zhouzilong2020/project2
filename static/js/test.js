@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   socket.on('connect', function() {
       document.querySelector('#new-message').onsubmit = () =>{
         const new_message = document.querySelector('#message').value;
-        socket.emit('new message', {new_message: new_message});
+        socket.emit('new message', {'new_message': new_message});
         return false;
       };
   });
 
-  socket.on('announce message', function(){
+  socket.on('announce message', data =>{
       const li = document.createElement('li');
-      const new_message = data[new_message];
+      const new_message = data['new_message']
       li.innerHTML = new_message;
       document.querySelector('#messages').append(li);
   });

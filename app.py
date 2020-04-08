@@ -23,7 +23,6 @@ socketio = SocketIO(app)
 
 @socketio.on("new message")
 def message(data):
-    new_message = data["new_message"]
     emit("announce message", data, broadcast=True)
 
 @app.route('/')
