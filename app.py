@@ -25,6 +25,14 @@ socketio = SocketIO(app)
 def message(data):
     emit("announce message", data, broadcast=True)
 
+
+# <string:user_name>/<string:room_id>
+
+@app.route('/test/<user_name>/<user_id>')
+def test(user_name, user_id):
+    data = {"user_name" : user_name,"room_id" : user_id}
+    return render_template('test.html', data=data)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -52,10 +60,6 @@ def register():
         if newUser.addUser():
             return redirect(url_for('homepage', diaplayname = user.diaplayname))
     return render_template('register.html')
-
-@app.route('/test/')
-def test():
-    return render_template('test.html')
 
 
 # * `200 OK`
