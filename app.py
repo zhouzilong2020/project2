@@ -21,8 +21,12 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds = 1)
 #escape() 函数对 name 变量进行转义处理，比如把 < 转换成 &lt;
 socketio = SocketIO(app)
 
+
+
+channelLog = {}
 @socketio.on("new message")
 def message(data):
+    if
     emit("announce message", data, broadcast=True)
 
 
