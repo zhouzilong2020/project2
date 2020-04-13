@@ -23,7 +23,14 @@ class User(db.Model):
         self.user_id = str(user_id)
         self.password = str(password)
         self.displayname = str(displayname)
-        self.validity = 0
+        self.validity = False
+
+    #password is transfered into hash value
+    def __init__(self, user_id, password):
+        #赋值user_id，user_password
+        self.user_id = str(user_id)
+        self.password = str(password)
+        self.validity = False
 
     def isAuthorized(self):
         return self.validity
@@ -40,6 +47,7 @@ class User(db.Model):
             #当前用户名存在，并且密码匹配
             if exist_user is not None:
                 if check_password_hash(exist_user.password_hash, self.password):
+                    self.displayname = exist_user.displayname
                     validity = True
                 else: validity = False
             return True

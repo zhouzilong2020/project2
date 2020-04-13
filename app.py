@@ -24,35 +24,55 @@ socketio = SocketIO(app)
 
 
 channelLog = {}
+channel_id = 0
+@socketio.on("new channel")
+def newChannel(data):
+    pass
 @socketio.on("new message")
 def message(data):
-    if
     emit("announce message", data, broadcast=True)
 
 
 # <string:user_name>/<string:room_id>
 
-@app.route('/test/<user_name>/<user_id>')
-def test(user_name, user_id):
-    data = {"user_name" : user_name,"room_id" : user_id}
+@app.route('/test/<user_id>/<room_id>')
+def test(user_id, room_id):
+    data = {"user_id" : user_id,"room_id" : room_id}
     return render_template('test.html', data=data)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/login/', methods=['POST', 'GET'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         user = User(request.form.get('user_id'), request.form.get('password'))
         remember_me = request.form.get('remember_me')
         user.login()
         if user.isAuthorized():
-            return redirect(url_for('homepage', diaplayname = user.diaplayname))
+            data = {
+                'user_id' : user.user_id,
+                'diaplayname' : user.diaplayname
+            }
+            return redirect(url_for('homepage1', data = data))
     return render_template('login.html')
 
+@app.route('/homepage/<string:user_id>', methods=['POST', 'GET'])
+def homepage1(user_id):
+    data = {
+        'user_id' : user_id
+    }
+    if request.method == 'POST':
+        global channel_id
+        global channelLog
+        channelLog[channel_id] = [user_id]
+        channel_id+=1
+        return redirect(url_for('test', user_id = user_id, room_id = channel_id))
+    return render_template('homepage1.html', data=data)
 
-@app.route('/register/', methods=['POST', 'GET'])
+
+@app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
         data = {
@@ -60,9 +80,9 @@ def register():
             'password': request.form.get('password'),
             'displayname':request.form.get('displayname')
         }
-        newUser = User(data[user_id], data[password], data[displayname])
+        newUser = User(data['user_id'], data['password'], data['displayname'])
         if newUser.addUser():
-            return redirect(url_for('homepage', diaplayname = user.diaplayname))
+            return redirect(url_for('homepage1', diaplayname = newUser.diaplayname))
     return render_template('register.html')
 
 
