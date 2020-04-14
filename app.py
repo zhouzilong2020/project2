@@ -14,6 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 关闭对模型修改的
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"   #filesystem允许用户对数据进行更改、插入、删除等操作
 app.config['SECRET_KEY'] = 'dev'  # 等同于 app.secret_key = 'dev'
+app.config['JSON_AS_ASCII'] = False
 
 app._static_folder = "./static"
 
@@ -25,26 +26,40 @@ socketio = SocketIO(app)
 
 channelLog = {}
 channel_id = 0
-@socketio.on("new channel")
-def newChannel(data):
-    pass
+# @socketio.on("new channel")
+# def newChannel(data):
+#     pass
 
 
 @app.route('/homepage/<string:user_id>', methods=['POST', 'GET'])
 def homepage1(user_id):
-    data = {
-        'user_id' : user_id
-    }
+    global channel_id
+    global channelLog
     if request.method == 'POST':
-        global channel_id
-        global channelLog
-        channelLog[channel_id] = [user_id]
-        channel_id+=1
-        # 前客户端播送新建一个频道
-        emit("new channel", channelLog)
-        return redirect(url_for('test', user_id = user_id, room_id = channel_id))
+        return redirect(url_for('test',user_id = user_id, room_id = channel_id-1))
 
+    channels = []
+    for channel in channelLog:
+        channels.append(channel)
+    data = {
+        'owner' : user_id,
+        'channels' : channels
+    }
     return render_template('homepage1.html', data=data)
+
+
+@socketio.on("new channel")
+def new_channel(data):
+    global channel_id
+    global channelLog
+
+    channelLog[channel_id] = [data['owner']]
+    channel_id+=1
+    data['new_channel_id'] = channel_id-1
+    # 向客户端播送新建一个频道
+    emit("announce new channel", data, broadcast=True)
+
+
 
 @socketio.on("new message")
 def message(data):
@@ -53,7 +68,7 @@ def message(data):
 
 # <string:user_name>/<string:room_id>
 
-@app.route('/test/<user_id>/<room_id>')
+@app.route('/chatroom/<user_id>/<room_id>')
 def test(user_id, room_id):
     data = {"user_id" : user_id,"room_id" : room_id}
     return render_template('test.html', data=data)
