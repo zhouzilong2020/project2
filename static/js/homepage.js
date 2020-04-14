@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
       };
   });
 
-  socket.on('new channel', data =>{
-      
-    }
-  });
+  // 
+  socket.on('new channel', channelLog=>{
+
+  })
+
 
 });

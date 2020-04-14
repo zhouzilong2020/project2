@@ -28,6 +28,24 @@ channel_id = 0
 @socketio.on("new channel")
 def newChannel(data):
     pass
+
+
+@app.route('/homepage/<string:user_id>', methods=['POST', 'GET'])
+def homepage1(user_id):
+    data = {
+        'user_id' : user_id
+    }
+    if request.method == 'POST':
+        global channel_id
+        global channelLog
+        channelLog[channel_id] = [user_id]
+        channel_id+=1
+        # 前客户端播送新建一个频道
+        emit("new channel", channelLog)
+        return redirect(url_for('test', user_id = user_id, room_id = channel_id))
+
+    return render_template('homepage1.html', data=data)
+
 @socketio.on("new message")
 def message(data):
     emit("announce message", data, broadcast=True)
@@ -58,18 +76,6 @@ def login():
             return redirect(url_for('homepage1', data = data))
     return render_template('login.html')
 
-@app.route('/homepage/<string:user_id>', methods=['POST', 'GET'])
-def homepage1(user_id):
-    data = {
-        'user_id' : user_id
-    }
-    if request.method == 'POST':
-        global channel_id
-        global channelLog
-        channelLog[channel_id] = [user_id]
-        channel_id+=1
-        return redirect(url_for('test', user_id = user_id, room_id = channel_id))
-    return render_template('homepage1.html', data=data)
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -80,7 +86,12 @@ def register():
             'password': request.form.get('password'),
             'displayname':request.form.get('displayname')
         }
-        newUser = User(data['user_id'], data['password'], data['displayname'])
+        newUser = User(
+            user_id = data['user_id'],
+            password = data['password'],
+            displayname = data['displayname']
+        )
+        redirect(url_for('homepage1', user_id = data['user_id']))
         if newUser.addUser():
             return redirect(url_for('homepage1', diaplayname = newUser.diaplayname))
     return render_template('register.html')
